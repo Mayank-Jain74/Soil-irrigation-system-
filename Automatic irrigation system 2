@@ -1,0 +1,150 @@
+#include <Servo.h>
+
+// Creating Servo Objects
+Servo servoMotor1;
+Servo servoMotor2;
+
+// Define the pin to which the servo signal wire is connected
+const int servoPin1 = 9; // Soil Moisture Sensor Servo
+const int servoPin2 = 10; // Ultrasonic Sensor Servo
+
+// Define the pin for the soil moisture sensor
+const int moistureSensorPin = A0;
+
+// Define the threshold value for moisture level
+const int moistureThreshold = 1000; // Adjust this value based on calibration
+
+// Define the pin to which the relay signal wire is connected
+const int relayPin = 13; // You can choose any digital pin
+
+// Define the pins for the ultrasonic sensor
+const int trigPin = 12; // Trigger pin
+const int echoPin = 11; // Echo pin
+
+// Define the pins for the motor driver (L293D)
+const int motor1A = 4; // Motor 1 input 1
+const int motor1B = 5; // Motor 1 input 2
+const int motor2A = 6; // Motor 2 input 1
+const int motor2B = 7; // Motor 2 input 2
+
+// Variables to store the duration and distance
+long duration;
+int distance;
+
+void setup() {
+  // Set up the serial communication
+  Serial.begin(9600);
+
+  servoMotor1.attach(servoPin1); // Soil Moisture Servo
+  servoMotor2.attach(servoPin2); // Ultrasonic Servo
+
+  pinMode(relayPin, OUTPUT);
+  digitalWrite(relayPin, LOW); // turns the relay off
+
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+
+  // Motor driver setup
+  pinMode(motor1A, OUTPUT);
+  pinMode(motor1B, OUTPUT);
+  pinMode(motor2A, OUTPUT);
+  pinMode(motor2B, OUTPUT);
+}
+
+void loop() {
+  // Set initial position for servoMotor1
+  servoMotor1.write(0);
+  delay(1000); // Adjust this delay based on your requirements
+
+  // First loop to sweep servoMotor1 down
+  for (int angle = 0; angle <= 90; angle += 1) {
+    servoMotor1.write(angle);
+    delay(15); // You may need to adjust this delay based on your servo's speed
+  }
+
+  // Read the analog value from the soil moisture sensor
+  int moistureValue = analogRead(moistureSensorPin);
+
+  // Second loop to sweep servoMotor1 up
+  for (int angle = 90; angle >= 0; angle -= 1) {
+    servoMotor1.write(angle);
+    delay(15); // You may need to adjust this delay based on your servo's speed
+  }
+
+  Serial.print("Moisture Value: ");
+  Serial.println(moistureValue);
+
+  // Check if the moisture value is below the threshold
+  if (moistureValue < moistureThreshold) {
+    Serial.println("Soil is too dry!");
+    Serial.println("Water pump activated!");
+    digitalWrite(relayPin, HIGH);
+    delay(4000);
+    digitalWrite(relayPin, LOW);
+    Serial.println("Water pump deactivated!");
+
+    // servo motor 2
+    sweepServo(servoMotor2, 180, 15); // Sweep Ultrasonic Servo
+
+    // ultra sonic sensor
+    measureDistance();
+
+    // Motor driver control for turning left
+    turnLeft();
+    delay(2000); // Adjust this delay based on your requirements
+    stopMotor();
+  } else {
+    Serial.println("Soil moisture is sufficient!");
+
+    // servo motor 2
+    sweepServo(servoMotor2, 180, 15); // Sweep Ultrasonic Servo
+
+    // ultra sonic sensor
+    measureDistance();
+
+    // Motor driver control for stopping
+    stopMotor();
+  }
+
+  // Delay before repeating the loop
+  delay(5000); // Adjust this delay based on your requirements
+}
+
+// Function to sweep a servo
+void sweepServo(Servo servo, int range, int delayTime) {
+  for (int angle = 0; angle <= range; angle += 1) {
+    servo.write(angle);
+    delay(delayTime);
+  }
+
+  // Delay before sweeping in the other direction
+  delay(1000);
+
+  for (int angle = range; angle >= 0; angle -= 1) {
+    servo.write(angle);
+    delay(delayTime);
+  }
+
+  // Delay before starting the next sweep
+  delay(1000);
+}
+
+// Function to measure distance using ultrasonic sensor
+void measureDistance() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  duration = pulseIn(echoPin, HIGH);
+  distance = duration * 0.034 / 2;
+
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+}
+
+// Motor driver control functions
+void turnLeft() {
+  digitalWrite
