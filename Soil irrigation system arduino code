@@ -1,0 +1,491 @@
+#include <Servo.h>
+
+ 
+
+// Creating Servo Objects
+
+Servo servoMotor1;
+
+Servo servoMotor2;
+
+ 
+
+// Define the pin to which the servo signal wire is connected
+
+const int servoPin1 = 9; // Soil Moisture Sensor Servo
+
+const int servoPin2 = 10; // UltraSonic Sensor Servo
+
+ 
+
+// Define the pin for the soil moisture sensor
+
+const int moistureSensorPin = A0;
+
+ 
+
+// Define the pin for the LM393 comparator digital output
+
+const int comparatorPin = 8; // You can choose any digital pin
+
+ 
+
+// Define the threshold value for moisture level
+
+const int moistureThreshold = 1000; // Adjust this value based on your sensor and requirements
+
+ 
+
+// Define the pin to which the relay signal wire is connected
+
+const int relayPin = 13; // You can choose any digital pin
+
+// set the above  pin
+
+ 
+
+// Define the pins for the ultrasonic sensor
+
+const int trigPin = 12; // Trigger pin
+
+const int echoPin = 11; // Echo pin
+
+ 
+
+// Variables to store the duration and distance
+
+long duration; // pending
+
+int distance;  // pending
+
+ 
+
+ 
+
+ 
+
+ 
+
+void setup() {
+
+  // Set up the serial communication
+
+  Serial.begin(9600);
+
+ 
+
+  servoMotor1.attach(servoPin1); // Soil Moisture Servo
+
+  servoMotor2.attach(servoPin2); // Ultrasonic Servo
+
+ 
+
+  // Set the comparator pin as INPUT
+
+  pinMode(comparatorPin, INPUT);
+
+ 
+
+  // Set the relay pin as OUTPUT
+
+pinMode(relayPin, OUTPUT);
+
+  digitalWrite(relayPin, LOW); // turns the relay off
+
+ 
+
+ 
+
+  // Serial communication for debugging (optional)
+
+ 
+
+// Set the trigger pin as an OUTPUT
+
+  pinMode(trigPin, OUTPUT);
+
+  // Set the echo pin as an INPUT
+
+  pinMode(echoPin, INPUT);
+
+}
+
+ 
+
+ 
+
+ 
+
+ 
+
+void loop() {
+
+ 
+
+  for (int angle = 0; angle <= 90; angle += 1)
+
+  {
+
+    servoMotor1.write(240); // Set Angle for soil moisture down
+
+    }
+
+  // Read the analog value from the soil moisture sensor
+
+  int moistureValue = analogRead(moistureSensorPin);
+
+  for (int angle = 0; angle <= 90; angle += 1)
+
+  {
+
+    servoMotor1.write(150); // Set Angle for soil moisture up
+
+    }
+
+ 
+
+  // Print the moisture value to the Serial Monitor
+
+  Serial.print("Moisture Value: ");
+
+  Serial.println(moistureValue);
+
+ 
+
+  // Check if the moisture value is below the threshold
+
+  if (moistureValue < moistureThreshold) {
+
+    Serial.println("Soil is too dry!");
+
+    Serial.println("Water pump activated!");
+
+    Serial.println("Water pump activated!");
+
+    digitalWrite(relayPin, HIGH);
+
+    delay(4000);
+
+    digitalWrite(relayPin, LOW);
+
+    Serial.println("Water pump deactivated!");
+
+    // servo motor 2
+
+ 
+
+ 
+
+    // Sweep the servo from 0 to 180 degrees
+
+  for (int angle = 0; angle <= 180; angle += 1) {
+
+    // Set the servo position
+
+    servoMotor2.write(45);
+
+ 
+
+    // Wait for the servo to reach the desired position
+
+    delay(15); // You may need to adjust this delay based on your servo's speed
+
+ 
+
+    // Print the current angle to the Serial Monitor
+
+    Serial.print("Angle: ");
+
+    Serial.println(angle);
+
+  }
+
+ 
+
+  // Delay before sweeping in the other direction
+
+  delay(1000);
+
+ 
+
+  // Sweep the servo back from 180 to 0 degrees
+
+  for (int angle = 180; angle >= 0; angle -= 1) {
+
+    // Set the servo position
+
+    servoMotor2.write(90);
+
+ 
+
+    // Wait for the servo to reach the desired position
+
+    delay(15);
+
+ 
+
+    // Print the current angle to the Serial Monitor
+
+    Serial.print("Angle: ");
+
+    Serial.println(angle);
+
+  }
+
+ 
+
+  // Delay before starting the next sweep
+
+  delay(1000);
+
+ 
+
+   // Sweep the servo back from 180 to 0 degrees
+
+  for (int angle = 180; angle >= 0; angle -= 1) {
+
+    // Set the servo position
+
+    servoMotor2.write(135);
+
+ 
+
+    // Wait for the servo to reach the desired position
+
+    delay(15);
+
+ 
+
+    // Print the current angle to the Serial Monitor
+
+    Serial.print("Angle: ");
+
+    Serial.println(angle);
+
+  }
+
+ 
+
+  // Delay before starting the next sweep
+
+  delay(1000);
+
+ 
+
+    // +
+
+    // ultra sonic sensor
+
+ 
+
+     // Trigger the ultrasonic sensor
+
+  digitalWrite(trigPin, LOW);
+
+  delayMicroseconds(2);
+
+  digitalWrite(trigPin, HIGH);
+
+  delayMicroseconds(10);
+
+  digitalWrite(trigPin, LOW);
+
+ 
+
+  // Measure the duration of the pulse on the echo pin
+
+  duration = pulseIn(echoPin, HIGH);
+
+ 
+
+  // Calculate the distance in centimeters (cm)
+
+  distance = duration * 0.034 / 2;
+
+ 
+
+  // Print the distance to the Serial Monitor
+
+  Serial.print("Distance: ");
+
+  Serial.print(distance);
+
+  Serial.println(" cm");
+
+ 
+
+  // Add a delay before taking the next measurement
+
+  delay(1000);
+
+ 
+
+  delay(1000); // Set delay using trial and error
+
+    // +
+
+    // bo motor
+
+  }
+
+  else
+
+   {
+
+    Serial.println("Soil moisture is sufficient.");
+
+    // servo motor 2
+
+ 
+
+    // Sweep the servo from 0 to 180 degrees
+
+  for (int angle = 0; angle <= 180; angle += 1) {
+
+    // Set the servo position
+
+    servoMotor2.write(45);
+
+ 
+
+    // Wait for the servo to reach the desired position
+
+    delay(15); // You may need to adjust this delay based on your servo's speed
+
+ 
+
+    // Print the current angle to the Serial Monitor
+
+    Serial.print("Angle: ");
+
+    Serial.println(angle);
+
+  }
+
+ 
+
+  // Delay before sweeping in the other direction
+
+  delay(1000);
+
+ 
+
+  // Sweep the servo back from 180 to 0 degrees
+
+  for (int angle = 180; angle >= 0; angle -= 1) {
+
+    // Set the servo position
+
+    servoMotor2.write(90);
+
+ 
+
+    // Wait for the servo to reach the desired position
+
+    delay(15);
+
+ 
+
+    // Print the current angle to the Serial Monitor
+
+    Serial.print("Angle: ");
+
+    Serial.println(angle);
+
+  }
+
+ 
+
+  // Delay before starting the next sweep
+
+  delay(1000);
+
+ 
+
+  // Sweep the servo back from 180 to 0 degrees
+
+  for (int angle = 180; angle >= 0; angle -= 1) {
+
+    // Set the servo position
+
+    servoMotor2.write(135);
+
+ 
+
+    // Wait for the servo to reach the desired position
+
+    delay(15);
+
+ 
+
+    // Print the current angle to the Serial Monitor
+
+    Serial.print("Angle: ");
+
+    Serial.println(angle);
+
+  }
+
+ 
+
+  // Delay before starting the next sweep
+
+  delay(1000);
+
+    // +
+
+    // ultra sonic sensor
+
+ 
+
+     // Trigger the ultrasonic sensor
+
+  digitalWrite(trigPin, LOW);
+
+  delayMicroseconds(2);
+
+  digitalWrite(trigPin, HIGH);
+
+  delayMicroseconds(10);
+
+  digitalWrite(trigPin, LOW);
+
+ 
+
+  // Measure the duration of the pulse on the echo pin
+
+  duration = pulseIn(echoPin, HIGH);
+
+ 
+
+  // Calculate the distance in centimeters (cm)
+
+  distance = duration * 0.034 / 2;
+
+ 
+
+  // Print the distance to the Serial Monitor
+
+  Serial.print("Distance: ");
+
+  Serial.print(distance);
+
+  Serial.println(" cm");
+
+ 
+
+  // Add a delay before taking the next measurement
+
+  delay(1000);
+
+ 
+
+  delay(1000); // Set delay using trial and error
+
+    // +
+
+    // bo motor
+
+   }}
+
+       
